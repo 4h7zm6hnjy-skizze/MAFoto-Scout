@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#08111f">
+  <meta name="description" content="MAFoto-Scout – Foto-Location, Licht-, Wetter- und Astro-Planer.">
+  <title>MAFoto-Scout</title>
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" href="./icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./styles.css">
+  <link rel="preconnect" href="https://unpkg.com">
+  <link rel="preconnect" href="https://cdn.jsdelivr.net">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo" aria-hidden="true">MA</div>
+      <div>
+        <strong>MAFoto-Scout</strong>
+        <small>Location · Licht · Wetter · Astro</small>
+      </div>
+    </div>
+    <button id="installBtn" class="ghost hidden" type="button">App installieren</button>
+  </header>
+
+  <main>
+    <section class="hero card">
+      <div>
+        <span class="eyebrow">FOTO-PLANER</span>
+        <h1>Plane dein nächstes Foto.</h1>
+        <p>Ort suchen, Licht prüfen, Wetter ansehen und die passende Zeit direkt auf der Karte planen.</p>
+      </div>
+      <div class="hero-actions">
+        <button data-go="planner" class="primary" type="button">Planer öffnen</button>
+        <button id="useLocationHero" class="secondary" type="button">Mein Standort</button>
+      </div>
+    </section>
+
+    <nav class="tabs" aria-label="Hauptnavigation">
+      <button class="tab active" data-tab="planner" type="button">Planer</button>
+      <button class="tab" data-tab="astro" type="button">Astro</button>
+      <button class="tab" data-tab="places" type="button">Orte</button>
+      <button class="tab" data-tab="camera" type="button">Kamera</button>
+      <button class="tab" data-tab="favorites" type="button">Favoriten</button>
+    </nav>
+
+    <section id="planner" class="panel active">
+      <div class="grid two">
+        <article class="card">
+          <h2>Ort & Datum</h2>
+          <label for="plannerSearch">Ort suchen</label>
+          <div class="input-row">
+            <input id="plannerSearch" autocomplete="off" placeholder="z. B. Meinerzhagen, Norddeich, Föhr">
+            <button id="plannerSearchBtn" class="primary" type="button">Suchen</button>
+          </div>
+          <div id="plannerResults" class="search-results"></div>
+
+          <div class="grid two compact">
+            <div>
+              <label for="plannerDate">Datum</label>
+              <input id="plannerDate" type="date">
+            </div>
+            <div>
+              <label for="plannerTime">Uhrzeit</label>
+              <input id="plannerTime" type="time">
+            </div>
+          </div>
+
+          <div class="button-row">
+            <button id="useLocationBtn" class="secondary" type="button">Aktuellen Standort nutzen</button>
+            <button id="savePlaceBtn" class="ghost" type="button">Ort speichern</button>
+          </div>
+
+          <div id="selectedPlace" class="status-box">Noch kein Ort gewählt.</div>
+        </article>
+
+        <article class="card">
+          <h2>Licht & Sonne</h2>
+          <div id="lightSummary" class="metric-grid">
+            <div class="metric"><span>Sonnenaufgang</span><strong>–</strong></div>
+            <div class="metric"><span>Sonnenuntergang</span><strong>–</strong></div>
+            <div class="metric"><span>Goldene Stunde</span><strong>–</strong></div>
+            <div class="metric"><span>Blaue Stunde</span><strong>–</strong></div>
+          </div>
+          <div id="sunDirection" class="status-box">Wähle zuerst einen Ort.</div>
+        </article>
+      </div>
+
+      <article class="card map-card">
+        <div class="card-head">
+          <div>
+            <h2>Karte</h2>
+            <p class="muted">Tippe auf die Karte, um einen exakten Foto-Standpunkt zu setzen.</p>
+          </div>
+          <button id="centerMapBtn" class="ghost" type="button">Zentrieren</button>
+        </div>
+        <div id="map" aria-label="Karte"></div>
+      </article>
+
+      <div class="grid two">
+        <article class="card">
+          <h2>Wetter</h2>
+          <div id="weatherStatus" class="status-box">Wähle einen Ort, um das Wetter zu laden.</div>
+          <div id="weatherMetrics" class="metric-grid hidden"></div>
+        </article>
+        <article class="card">
+          <h2>Foto-Einschätzung</h2>
+          <div id="photoAdvice" class="status-box">Sobald Ort und Wetter geladen sind, erscheint hier eine praktische Einschätzung.</div>
+        </article>
+      </div>
+    </section>
+
+    <section id="astro" class="panel">
+      <div class="grid two">
+        <article class="card">
+          <h2>Astro-Planer</h2>
+          <p class="muted">Nutzt den im Planer gewählten Ort und das gewählte Datum.</p>
+          <div id="astroMetrics" class="metric-grid">
+            <div class="metric"><span>Mondaufgang</span><strong>–</strong></div>
+            <div class="metric"><span>Monduntergang</span><strong>–</strong></div>
+            <div class="metric"><span>Mondphase</span><strong>–</strong></div>
+            <div class="metric"><span>Astro-Nacht</span><strong>–</strong></div>
+          </div>
+          <div id="astroAdvice" class="status-box">Wähle im Planer einen Ort.</div>
+        </article>
+
+        <article class="card">
+          <h2>Sternfoto-Rechner</h2>
+          <label for="focalLength">Brennweite</label>
+          <div class="range-row">
+            <input id="focalLength" type="range" min="10" max="600" value="24">
+            <output id="focalOut">24 mm</output>
+          </div>
+          <label for="sensorType">Sensor</label>
+          <select id="sensorType">
+            <option value="1">Vollformat</option>
+            <option value="1.5">APS-C 1,5×</option>
+            <option value="1.6">APS-C 1,6×</option>
+            <option value="2">Micro Four Thirds 2×</option>
+          </select>
+          <div id="starCalc" class="status-box">500er-Regel: ca. 21 s maximale Belichtungszeit.</div>
+        </article>
+      </div>
+    </section>
+
+    <section id="places" class="panel">
+      <article class="card">
+        <div class="card-head">
+          <div>
+            <h2>Orte entdecken</h2>
+            <p class="muted">Suche nach Orten, Aussichtspunkten, Seen, Burgen oder Küstenmotiven.</p>
+          </div>
+          <button id="nearbyBtn" class="secondary" type="button">In meiner Nähe</button>
+        </div>
+        <div class="input-row">
+          <input id="placesSearch" autocomplete="off" placeholder="z. B. Aussichtspunkt Meinerzhagen">
+          <button id="placesSearchBtn" class="primary" type="button">Suchen</button>
+        </div>
+        <div id="placesResults" class="place-grid"></div>
+      </article>
+    </section>
+
+    <section id="camera" class="panel">
+      <div class="grid two">
+        <article class="card">
+          <h2>ND-Filter-Rechner</h2>
+          <label for="baseShutter">Ausgangszeit in Sekunden</label>
+          <input id="baseShutter" type="number" min="0.000125" step="0.001" value="0.008">
+          <label for="ndStops">ND-Stufen</label>
+          <select id="ndStops">
+            <option value="3">ND8 · 3 Stops</option>
+            <option value="6">ND64 · 6 Stops</option>
+            <option value="10" selected>ND1000 · 10 Stops</option>
+            <option value="15">ND32000 · 15 Stops</option>
+          </select>
+          <button id="calcNdBtn" class="primary" type="button">Berechnen</button>
+          <div id="ndResult" class="status-box">0,008 s mit ND1000 → ca. 8,2 s</div>
+        </article>
+
+        <article class="card">
+          <h2>Kamera-Schnellhilfe</h2>
+          <p class="muted">Faustregeln als Startpunkt – Motiv, Objektiv und gewünschter Look können andere Einstellungen sinnvoll machen.</p>
+          <div class="tips">
+            <button class="tip" data-tip="landscape" type="button"><strong>Landschaft</strong><span>f/8–f/11 · niedrige ISO · Stativ bei Bedarf</span></button>
+            <button class="tip" data-tip="portrait" type="button"><strong>Portrait</strong><span>offene Blende · Fokus aufs Auge · kurze Verschlusszeit</span></button>
+            <button class="tip" data-tip="astro" type="button"><strong>Astro</strong><span>RAW · manuell fokussieren · hohe ISO · kurze Zeit</span></button>
+            <button class="tip" data-tip="sport" type="button"><strong>Sport</strong><span>1/1000 s oder kürzer · Serienbild · AF-C/Servo</span></button>
+          </div>
+          <div id="cameraTipDetail" class="status-box">Wähle ein Motiv.</div>
+        </article>
+      </div>
+    </section>
+
+    <section id="favorites" class="panel">
+      <article class="card">
+        <div class="card-head">
+          <div>
+            <h2>Gespeicherte Foto-Orte</h2>
+            <p class="muted">Favoriten werden nur auf diesem Gerät gespeichert.</p>
+          </div>
+          <button id="clearFavoritesBtn" class="ghost danger" type="button">Alle löschen</button>
+        </div>
+        <div id="favoritesList" class="place-grid"></div>
+      </article>
+    </section>
+  </main>
+
+  <footer>
+    <span>MAFoto-Scout</span>
+    <span id="onlineState">Online</span>
+  </footer>
+
+  <div id="toast" role="status" aria-live="polite"></div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+  <script src="https://cdn.jsdelivr.net/npm/suncalc@1.9.0/suncalc.js"></script>
+  <script src="./app.js"></script>
+</body>
+</html>

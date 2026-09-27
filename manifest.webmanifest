@@ -1,0 +1,10 @@
+{
+  "name": "MAFoto-Scout",
+  "short_name": "MAFoto",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#06101c",
+  "theme_color": "#08111f",
+  "description": "Foto-Location, Licht-, Wetter- und Astro-Planer."
+}
