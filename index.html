@@ -2,381 +2,59 @@
 <html lang="de">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
-  <meta name="theme-color" content="#08111e">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#102219">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="MAFoto Scout">
-  <meta name="description" content="MAFoto-Scout – mobiler Foto-, Licht-, Wetter- und Astroplaner.">
-  <title>MAFoto-Scout</title>
-
-  <link rel="manifest" href="./manifest.webmanifest">
-  <link rel="icon" href="./icon-192.png">
-  <link rel="apple-touch-icon" href="./icon-192.png">
-
-  <link rel="preconnect" href="https://unpkg.com">
-  <link rel="preconnect" href="https://cdn.jsdelivr.net">
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
-  <link rel="stylesheet" href="./styles.css">
+  <meta name="apple-mobile-web-app-title" content="Platz 161">
+  <title>Die Hentschel's – Platz 161</title>
+  <link rel="manifest" href="manifest.webmanifest?v=4">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="stylesheet" href="styles.css?v=4">
 </head>
 <body>
-  <div id="app">
-    <header class="appbar">
-      <button class="icon-btn hidden" id="backBtn" type="button" aria-label="Zurück">
-        <svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
-      </button>
+  <div id="setupGate" class="gate hidden" aria-live="polite"></div>
 
-      <div class="app-title">
-        <span class="mark">MA</span>
-        <div>
-          <strong id="screenTitle">MAFoto-Scout</strong>
-          <small id="screenSubtitle">Foto planen statt raten</small>
-        </div>
-      </div>
+  <header class="topbar">
+    <button class="brand" data-go="dashboard" aria-label="Startseite">
+      <img src="logo.jpg" alt="Die Hentschel's – Platz 161">
+      <span><strong>Platz 161</strong><small id="campNameTop">Campingverwaltung</small></span>
+    </button>
+    <div class="top-actions">
+      <span id="syncBadge" class="status local">Lokal</span>
+      <button id="installBtn" class="icon-btn hidden" title="App installieren" aria-label="App installieren">＋</button>
+      <button id="accountBtn" class="icon-btn" title="Konto und Einstellungen" aria-label="Konto und Einstellungen">⚙</button>
+    </div>
+  </header>
 
-      <button class="icon-btn" id="quickLocationBtn" type="button" aria-label="Mein Standort">
-        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="8"/></svg>
-      </button>
-    </header>
+  <main id="app" class="app-shell" aria-live="polite">
+    <section id="view-dashboard" class="view active"></section>
+    <section id="view-organize" class="view"></section>
+    <section id="view-costs" class="view"></section>
+    <section id="view-care" class="view"></section>
+    <section id="view-more" class="view"></section>
+  </main>
 
-    <main class="screens">
-      <!-- HOME -->
-      <section class="screen active" id="screen-home" data-title="MAFoto-Scout" data-subtitle="Foto planen statt raten">
-        <div class="hero-app">
-          <div class="hero-copy">
-            <span class="pill">HEUTE PLANEN</span>
-            <h1>Das richtige Licht.<br>Am richtigen Ort.</h1>
-            <p>Foto-Standpunkt, Sonne, Mond, Milchstraße, Wetter und Lichtverschmutzung in einer App.</p>
-          </div>
-          <button class="hero-cta" id="homePlanBtn" type="button">Planung starten</button>
-        </div>
+  <nav class="bottom-nav" aria-label="Hauptnavigation">
+    <button class="nav-btn active" data-view="dashboard"><span>⌂</span><small>Start</small></button>
+    <button class="nav-btn" data-view="organize"><span>✓</span><small>Listen</small></button>
+    <button class="nav-btn" data-view="costs"><span>€</span><small>Kosten</small></button>
+    <button class="nav-btn" data-view="care"><span>♧</span><small>Pflege</small></button>
+    <button class="nav-btn" data-view="more"><span>•••</span><small>Mehr</small></button>
+  </nav>
 
-        <section class="section-block">
-          <div class="section-heading">
-            <div>
-              <span class="section-kicker">AKTIVE PLANUNG</span>
-              <h2 id="homePlaceName">Noch kein Ort gewählt</h2>
-            </div>
-            <button class="text-btn" data-nav="map" type="button">Karte</button>
-          </div>
-
-          <div class="dashboard-grid">
-            <button class="dash-card sun" data-nav="planner" type="button">
-              <span class="dash-icon">☀︎</span>
-              <span class="dash-label">Sonnenuntergang</span>
-              <strong id="homeSunset">–</strong>
-              <small id="homeGolden">Goldene Stunde –</small>
-            </button>
-            <button class="dash-card moon" data-nav="astro" type="button">
-              <span class="dash-icon">◐</span>
-              <span class="dash-label">Mond</span>
-              <strong id="homeMoon">–</strong>
-              <small id="homeMoonPhase">Phase –</small>
-            </button>
-            <button class="dash-card weather" data-nav="weather" type="button">
-              <span class="dash-icon">☁︎</span>
-              <span class="dash-label">Wetter</span>
-              <strong id="homeWeather">–</strong>
-              <small id="homeClouds">Bewölkung –</small>
-            </button>
-            <button class="dash-card dark" data-nav="map" type="button">
-              <span class="dash-icon">✦</span>
-              <span class="dash-label">Nachthimmel</span>
-              <strong id="homeDarkSky">–</strong>
-              <small id="homeLp">Lichtverschmutzung –</small>
-            </button>
-          </div>
-        </section>
-
-        <section class="section-block">
-          <div class="section-heading">
-            <div>
-              <span class="section-kicker">SCHNELLZUGRIFF</span>
-              <h2>Foto-Werkzeuge</h2>
-            </div>
-          </div>
-          <div class="tool-strip">
-            <button class="tool-chip" data-open-tool="assistants" type="button"><span>◉</span>Assistenten</button>
-            <button class="tool-chip" data-open-tool="nd" type="button"><span>ND</span>ND-Rechner</button>
-            <button class="tool-chip" data-open-tool="stars" type="button"><span>✦</span>Sternzeit</button>
-            <button class="tool-chip" data-open-tool="editor" type="button"><span>◫</span>Bildeditor</button>
-          </div>
-        </section>
-
-        <section class="section-block last">
-          <div class="section-heading">
-            <div>
-              <span class="section-kicker">GESPEICHERT</span>
-              <h2>Letzte Foto-Orte</h2>
-            </div>
-            <button class="text-btn" data-open-tool="favorites" type="button">Alle</button>
-          </div>
-          <div id="homeFavorites" class="mini-list">
-            <div class="empty-state compact">Noch keine Orte gespeichert.</div>
-          </div>
-        </section>
-      </section>
-
-      <!-- PLANNER -->
-      <section class="screen" id="screen-planner" data-title="Fotoplaner" data-subtitle="Ort, Datum und Licht">
-        <section class="sheet-card">
-          <span class="section-kicker">STANDPUNKT</span>
-          <div class="search-line">
-            <input id="plannerSearch" autocomplete="off" placeholder="Ort, Adresse oder Koordinaten">
-            <button id="plannerSearchBtn" class="round-action" type="button" aria-label="Suchen">
-              <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
-            </button>
-          </div>
-          <div id="plannerResults" class="search-results"></div>
-
-          <div class="row-actions">
-            <button id="plannerLocationBtn" class="soft-btn" type="button">⌖ Standort</button>
-            <button id="savePlaceBtn" class="soft-btn" type="button">♡ Speichern</button>
-          </div>
-
-          <div id="selectedPlace" class="selected-place">
-            <span class="selected-pin">●</span>
-            <div><strong>Noch kein Ort gewählt</strong><small>Suche einen Ort oder tippe auf die Karte.</small></div>
-          </div>
-        </section>
-
-        <section class="sheet-card">
-          <span class="section-kicker">ZEITPUNKT</span>
-          <div class="date-time-grid">
-            <label><span>Datum</span><input id="plannerDate" type="date"></label>
-            <label><span>Uhrzeit</span><input id="plannerTime" type="time"></label>
-          </div>
-          <input id="timeSlider" class="time-slider" type="range" min="0" max="1439" step="5" value="720">
-          <div class="time-scale"><span>00:00</span><strong id="sliderTimeLabel">12:00</strong><span>23:59</span></div>
-        </section>
-
-        <section class="sheet-card">
-          <div class="section-heading inline">
-            <div>
-              <span class="section-kicker">LICHT</span>
-              <h2>Sonne & Dämmerung</h2>
-            </div>
-            <span id="sunDirectionBadge" class="status-pill">–</span>
-          </div>
-          <div class="stat-grid four">
-            <div class="stat"><span>Aufgang</span><strong id="sunriseValue">–</strong></div>
-            <div class="stat"><span>Untergang</span><strong id="sunsetValue">–</strong></div>
-            <div class="stat"><span>Goldene Std.</span><strong id="goldenValue">–</strong></div>
-            <div class="stat"><span>Blaue Std.</span><strong id="blueValue">–</strong></div>
-          </div>
-          <div class="light-track">
-            <span class="night"></span><span class="blue"></span><span class="gold"></span><span class="day"></span><span class="gold"></span><span class="blue"></span><span class="night"></span>
-            <i id="lightTrackMarker"></i>
-          </div>
-          <div id="sunDetail" class="info-callout">Wähle einen Ort, um Sonnenrichtung und Sonnenhöhe zu berechnen.</div>
-        </section>
-
-        <section class="sheet-card">
-          <span class="section-kicker">PLANUNG</span>
-          <div class="row-actions">
-            <button class="primary-btn grow" data-nav="map" type="button">Auf Karte anzeigen</button>
-            <button class="soft-btn" data-nav="astro" type="button">Astro</button>
-          </div>
-        </section>
-      </section>
-
-      <!-- MAP -->
-      <section class="screen map-screen" id="screen-map" data-title="Karte" data-subtitle="Standpunkt & Richtungen">
-        <div class="map-toolbar">
-          <button id="mapSearchBtn" class="map-tool" type="button">⌕ Ort</button>
-          <button id="lightPollutionBtn" class="map-tool active-purple" type="button">✦ Lichtverschmutzung</button>
-          <button id="mapLocateBtn" class="map-tool" type="button">⌖</button>
-        </div>
-        <div id="map"></div>
-
-        <div class="map-sheet">
-          <div class="drag-handle"></div>
-          <div class="map-sheet-head">
-            <div>
-              <span class="section-kicker">FOTO-STANDPUNKT</span>
-              <strong id="mapPlaceName">Noch kein Ort gewählt</strong>
-            </div>
-            <button class="heart-btn" id="mapSaveBtn" type="button">♡</button>
-          </div>
-          <div class="map-metrics">
-            <div><span class="dot sun-dot"></span><small>Sonne</small><strong id="mapSunAz">–</strong></div>
-            <div><span class="dot moon-dot"></span><small>Mond</small><strong id="mapMoonAz">–</strong></div>
-            <div><span class="dot mw-dot"></span><small>Milchstraße</small><strong id="mapMwAz">–</strong></div>
-          </div>
-          <div id="lightPollutionInfo" class="lp-summary">Lichtverschmutzung: Standort wählen.</div>
-        </div>
-      </section>
-
-      <!-- ASTRO -->
-      <section class="screen" id="screen-astro" data-title="Astro" data-subtitle="Mond & Milchstraße">
-        <section class="astro-hero">
-          <div class="sky-orb"><div class="moon-disc" id="moonDisc"></div></div>
-          <div>
-            <span class="section-kicker">MOND</span>
-            <h2 id="astroMoonTitle">–</h2>
-            <p id="astroMoonSubtitle">Standort wählen</p>
-          </div>
-        </section>
-
-        <section class="sheet-card">
-          <div class="stat-grid four">
-            <div class="stat"><span>Aufgang</span><strong id="moonriseValue">–</strong></div>
-            <div class="stat"><span>Untergang</span><strong id="moonsetValue">–</strong></div>
-            <div class="stat"><span>Beleuchtung</span><strong id="moonIllumValue">–</strong></div>
-            <div class="stat"><span>Astro-Nacht</span><strong id="astroNightValue">–</strong></div>
-          </div>
-        </section>
-
-        <section class="sheet-card milky-card">
-          <div class="section-heading inline">
-            <div>
-              <span class="section-kicker">MILCHSTRASSE</span>
-              <h2>Galaktisches Zentrum</h2>
-            </div>
-            <span id="mwScoreBadge" class="status-pill purple">–</span>
-          </div>
-          <div class="mw-visual">
-            <div class="horizon-line"></div>
-            <div id="mwArc" class="mw-arc"></div>
-            <div id="mwPoint" class="mw-point">✦</div>
-            <span class="horizon-label west">W</span>
-            <span class="horizon-label north">N</span>
-            <span class="horizon-label east">O</span>
-          </div>
-          <div class="stat-grid three">
-            <div class="stat"><span>Beste Zeit</span><strong id="mwBestTime">–</strong></div>
-            <div class="stat"><span>Max. Höhe</span><strong id="mwMaxAlt">–</strong></div>
-            <div class="stat"><span>Richtung</span><strong id="mwDirection">–</strong></div>
-          </div>
-          <div id="mwAdvice" class="info-callout">Wähle einen Standort und ein Datum.</div>
-        </section>
-
-        <section class="sheet-card">
-          <span class="section-kicker">STERNFOTO</span>
-          <div class="form-grid">
-            <label><span>Brennweite</span><input id="starFocal" type="number" min="8" max="1000" value="24"></label>
-            <label><span>Sensor</span>
-              <select id="starSensor">
-                <option value="1">Vollformat</option>
-                <option value="1.5">APS-C 1,5×</option>
-                <option value="1.6">APS-C 1,6×</option>
-                <option value="2">MFT 2×</option>
-              </select>
-            </label>
-          </div>
-          <div id="starResult" class="result-banner">500er-Regel: –</div>
-        </section>
-      </section>
-
-      <!-- WEATHER -->
-      <section class="screen" id="screen-weather" data-title="Wetter" data-subtitle="Bedingungen für Fotografie">
-        <section class="weather-hero">
-          <div>
-            <span class="section-kicker">AM GEWÄHLTEN ORT</span>
-            <h1 id="weatherTemp">–°</h1>
-            <p id="weatherCondition">Standort wählen</p>
-          </div>
-          <div class="weather-symbol" id="weatherSymbol">☁︎</div>
-        </section>
-
-        <section class="sheet-card">
-          <div class="stat-grid four">
-            <div class="stat"><span>Bewölkung</span><strong id="weatherClouds">–</strong></div>
-            <div class="stat"><span>Wind</span><strong id="weatherWind">–</strong></div>
-            <div class="stat"><span>Luftfeuchte</span><strong id="weatherHumidity">–</strong></div>
-            <div class="stat"><span>Niederschlag</span><strong id="weatherRain">–</strong></div>
-          </div>
-        </section>
-
-        <section class="sheet-card">
-          <div class="section-heading inline">
-            <div>
-              <span class="section-kicker">FOTOWETTER</span>
-              <h2>Einschätzung</h2>
-            </div>
-            <span id="photoWeatherScore" class="score-ring">–</span>
-          </div>
-          <div id="photoWeatherAdvice" class="advice-list">
-            <div class="empty-state compact">Wetterdaten werden nach Wahl eines Standorts angezeigt.</div>
-          </div>
-        </section>
-
-        <section class="sheet-card">
-          <span class="section-kicker">STUNDEN</span>
-          <div id="hourlyWeather" class="hourly-strip"></div>
-        </section>
-      </section>
-
-      <!-- MORE -->
-      <section class="screen" id="screen-more" data-title="Mehr" data-subtitle="Werkzeuge & Einstellungen">
-        <div class="menu-group">
-          <button class="menu-row" data-open-tool="assistants" type="button"><span class="menu-icon">◉</span><div><strong>Foto-Assistenten</strong><small>Portrait, Landschaft, Astro, Unterwasser, Studio, Sport, Drone</small></div><b>›</b></button>
-          <button class="menu-row" data-open-tool="nd" type="button"><span class="menu-icon">ND</span><div><strong>ND-Filter Rechner</strong><small>Langzeitbelichtung schnell berechnen</small></div><b>›</b></button>
-          <button class="menu-row" data-open-tool="editor" type="button"><span class="menu-icon">◫</span><div><strong>Bildeditor</strong><small>Lokal und nicht-destruktiv bearbeiten</small></div><b>›</b></button>
-          <button class="menu-row" data-open-tool="places" type="button"><span class="menu-icon">⌖</span><div><strong>Foto-Orte entdecken</strong><small>Aussichtspunkte, Burgen, Wasser, Gipfel</small></div><b>›</b></button>
-          <button class="menu-row" data-open-tool="favorites" type="button"><span class="menu-icon">♡</span><div><strong>Favoriten</strong><small>Gespeicherte Foto-Standpunkte</small></div><b>›</b></button>
-        </div>
-
-        <div class="menu-group">
-          <button class="menu-row" data-open-tool="settings" type="button"><span class="menu-icon">⚙</span><div><strong>Einstellungen</strong><small>Kamera, Karten und App</small></div><b>›</b></button>
-          <button class="menu-row" id="installAppBtn" type="button"><span class="menu-icon">⇩</span><div><strong>Als App installieren</strong><small>Zum Home-Bildschirm hinzufügen</small></div><b>›</b></button>
-        </div>
-
-        <div class="version-label">MAFoto-Scout Web App · v2</div>
-      </section>
-    </main>
-
-    <nav class="bottom-nav" aria-label="App-Navigation">
-      <button class="nav-item active" data-nav="home" type="button">
-        <svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg><span>Home</span>
-      </button>
-      <button class="nav-item" data-nav="map" type="button">
-        <svg viewBox="0 0 24 24"><path d="M3 6l6-3 6 3 6-3v15l-6 3-6-3-6 3z"/><path d="M9 3v15M15 6v15"/></svg><span>Karte</span>
-      </button>
-      <button class="nav-item" data-nav="astro" type="button">
-        <svg viewBox="0 0 24 24"><path d="M20 15.5A8 8 0 0 1 8.5 4 8 8 0 1 0 20 15.5z"/><path d="M17 3v4M15 5h4"/></svg><span>Astro</span>
-      </button>
-      <button class="nav-item" data-nav="weather" type="button">
-        <svg viewBox="0 0 24 24"><path d="M7 18h10a4 4 0 0 0 .7-7.94A6 6 0 0 0 6.2 8.5 4.5 4.5 0 0 0 7 18z"/></svg><span>Wetter</span>
-      </button>
-      <button class="nav-item" data-nav="more" type="button">
-        <svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg><span>Mehr</span>
-      </button>
-    </nav>
-  </div>
-
-  <!-- TOOL MODAL -->
-  <div class="modal hidden" id="toolModal" aria-hidden="true">
-    <div class="modal-backdrop" id="modalBackdrop"></div>
-    <section class="modal-sheet">
+  <dialog id="modal" class="modal">
+    <form method="dialog" class="modal-card" id="modalCard">
       <div class="modal-head">
-        <div>
-          <span class="section-kicker" id="modalKicker">WERKZEUG</span>
-          <h2 id="modalTitle">Werkzeug</h2>
-        </div>
-        <button id="modalCloseBtn" class="icon-btn" type="button">×</button>
+        <h2 id="modalTitle">Eintrag</h2>
+        <button value="cancel" class="icon-btn" aria-label="Schließen">×</button>
       </div>
-      <div id="modalContent" class="modal-content"></div>
-    </section>
-  </div>
+      <div id="modalBody"></div>
+      <div id="modalActions" class="modal-actions"></div>
+    </form>
+  </dialog>
 
-  <!-- INSTALL MODAL -->
-  <div class="modal hidden" id="installModal" aria-hidden="true">
-    <div class="modal-backdrop" data-close-install></div>
-    <section class="modal-sheet small">
-      <div class="modal-head">
-        <div><span class="section-kicker">INSTALLATION</span><h2>MAFoto-Scout als App</h2></div>
-        <button class="icon-btn" data-close-install type="button">×</button>
-      </div>
-      <div class="install-steps" id="installInstructions"></div>
-    </section>
-  </div>
-
-  <div id="toast" class="toast" role="status" aria-live="polite"></div>
-
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
-  <script src="https://cdn.jsdelivr.net/npm/suncalc@1.9.0/suncalc.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/pako@2.1.0/dist/pako.min.js"></script>
-  <script src="./app.js"></script>
+  <div id="toast" class="toast" role="status"></div>
+  <script src="app.js?v=4"></script>
 </body>
 </html>
